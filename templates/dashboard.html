@@ -1,0 +1,515 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Lip Reading AI{% endblock %}
+
+{% block styles %}
+<style>
+    .dashboard-container {
+        padding: 6.5rem 0 1.5rem 0;
+        background: linear-gradient(125deg, #0a0c1b 0%, #1a1f35 100%);
+        min-height: 100vh;
+        position: relative;
+    }
+    
+    .dashboard-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 20%, rgba(0, 233, 128, 0.05) 0%, transparent 40%),
+            radial-gradient(circle at 80% 80%, rgba(0, 191, 255, 0.05) 0%, transparent 40%);
+        pointer-events: none;
+    }
+    
+    .dashboard-card {
+        background: rgba(15, 18, 34, 0.85);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        margin-bottom: 0.75rem;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .dashboard-card-header {
+        padding: 0.5rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        background: rgba(0, 0, 0, 0.2);
+    }
+    
+    .dashboard-card-header h4 {
+        margin: 0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #fff;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+    
+    .dashboard-card-body {
+        padding: 1rem 1.25rem;
+    }
+    
+    .welcome-card {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        background: linear-gradient(135deg, rgba(15, 18, 34, 0.95), rgba(22, 26, 48, 0.95));
+        padding: 1rem 1.25rem;
+    }
+    
+    .avatar {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #00e980, #00bfff);
+        border-radius: 10px;
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(0, 233, 128, 0.2);
+    }
+    
+    .user-info h3 {
+        margin: 0 0 0.2rem 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background: linear-gradient(90deg, #fff, #b3b3b3);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .user-info p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+    }
+    
+    .action-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-top: 0.75rem;
+    }
+    
+    .action-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 1.25rem 1rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .action-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .action-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 10px;
+        margin-bottom: 0.75rem;
+        position: relative;
+    }
+    
+    .action-icon::after {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        border-radius: 14px;
+        background: inherit;
+        filter: blur(8px);
+        opacity: 0.4;
+        z-index: -1;
+    }
+    
+    .action-icon.demo {
+        background: linear-gradient(135deg, #00e980, #00bfff);
+    }
+    
+    .action-icon.collect {
+        background: linear-gradient(135deg, #00e980, #00c26e);
+    }
+    
+    .action-icon.docs {
+        background: linear-gradient(135deg, #00bfff, #0090c9);
+    }
+    
+    .action-card h4 {
+        margin: 0 0 0.35rem 0;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #fff;
+    }
+    
+    .action-card p {
+        margin: 0 0 1rem 0;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    
+    .btn-dashboard {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-dashboard::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: inherit;
+        filter: blur(10px);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+    }
+    
+    .btn-dashboard:hover::before {
+        opacity: 1;
+    }
+    
+    .btn-primary-gradient {
+        background: linear-gradient(90deg, #00e980, #00bfff);
+        color: #fff;
+        border: none;
+    }
+    
+    .btn-success-gradient {
+        background: linear-gradient(90deg, #00e980, #00c26e);
+        color: #fff;
+        border: none;
+    }
+    
+    .btn-info-gradient {
+        background: linear-gradient(90deg, #00bfff, #0090c9);
+        color: #fff;
+        border: none;
+    }
+    
+    .activity-item {
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        transition: background-color 0.3s ease;
+    }
+    
+    .activity-item:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .activity-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.35rem;
+    }
+    
+    .activity-header h5 {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #fff;
+    }
+    
+    .activity-header small {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.8rem;
+    }
+    
+    .activity-content {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+    }
+    
+    .no-activity {
+        text-align: center;
+        padding: 1.5rem;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.9rem;
+    }
+    
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        padding: 0.6rem 1rem;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .stat-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+    
+    .stat-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .stat-value {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    
+    .bg-primary-gradient {
+        background: linear-gradient(90deg, #00e980, #00bfff);
+        color: #fff;
+    }
+    
+    .bg-success-gradient {
+        background: linear-gradient(90deg, #00e980, #00c26e);
+        color: #fff;
+    }
+    
+    .bg-info-gradient {
+        background: linear-gradient(90deg, #00bfff, #0090c9);
+        color: #fff;
+    }
+    
+    .word-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    
+    .word-item:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 0.75rem;
+    }
+    
+    @media (max-width: 992px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-cards {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.75rem;
+        }
+        
+        .welcome-card {
+            flex-direction: column;
+            text-align: center;
+            padding: 1.25rem;
+        }
+        
+        .welcome-card .btn-dashboard {
+            margin-top: 0.75rem;
+        }
+        
+        .dashboard-card-body {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="container">
+        <!-- Welcome Card -->
+        <div class="dashboard-card">
+            <div class="dashboard-card-body welcome-card">
+                <div class="avatar">
+                    <i class="fas fa-user fa-2x"></i>
+                </div>
+                <div class="user-info">
+                    <h3>Welcome, {{ current_user.username }}!</h3>
+                    <p>{{ current_user.email }}</p>
+                </div>
+                {% if current_user.is_admin %}
+                <div style="margin-left: auto;">
+                    <a href="{{ url_for('admin') }}" class="btn-dashboard btn-primary-gradient">
+                        <i class="fas fa-cog"></i> Admin Panel
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h4>Quick Actions</h4>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="action-cards">
+                    <div class="action-card">
+                        <div class="action-icon demo">
+                            <i class="fas fa-video fa-2x"></i>
+                        </div>
+                        <h4>Try Demo</h4>
+                        <p>Test our lip reading technology with your webcam in real-time.</p>
+                        <a href="{{ url_for('demo') }}" class="btn-dashboard btn-primary-gradient">Launch Demo</a>
+                    </div>
+                    
+                    <div class="action-card">
+                        <div class="action-icon collect">
+                            <i class="fas fa-database fa-2x"></i>
+                        </div>
+                        <h4>Collect Data</h4>
+                        <p>Contribute to our dataset by recording your own lip movement samples.</p>
+                        <a href="{{ url_for('collect') }}" class="btn-dashboard btn-success-gradient">Start Collection</a>
+                    </div>
+                    
+                    <div class="action-card">
+                        <div class="action-icon docs">
+                            <i class="fas fa-book fa-2x"></i>
+                        </div>
+                        <h4>Documentation</h4>
+                        <p>Learn more about how our lip reading technology works.</p>
+                        <a href="#" class="btn-dashboard btn-info-gradient">View Docs</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity and Stats -->
+        <div class="dashboard-grid">
+            <!-- Activity -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h4>Your Activity</h4>
+                </div>
+                <div>
+                    {% if contributions %}
+                        {% for contribution in contributions %}
+                        <div class="activity-item">
+                            <div class="activity-header">
+                                <h5>Contributed "{{ contribution.word }}" sample</h5>
+                                <small>{{ contribution.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                            <div class="activity-content">
+                                Filename: {{ contribution.filename }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="activity-item">
+                        <div class="activity-header">
+                            <h5>First login</h5>
+                            <small>Today</small>
+                        </div>
+                        <div class="activity-content">
+                            Welcome to the Lip Reading AI platform!
+                        </div>
+                    </div>
+                    <div class="no-activity">
+                        No more activities to show.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Stats Column -->
+            <div>
+                <!-- Statistics -->
+                <div class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <h4>Statistics</h4>
+                    </div>
+                    <div class="dashboard-card-body">
+                        <div class="stat-item">
+                            <div class="stat-label">Demo Sessions</div>
+                            <div class="stat-value bg-primary-gradient">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Data Contributions</div>
+                            <div class="stat-value bg-success-gradient">{{ total_contributions }}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Account Age</div>
+                            <div class="stat-value bg-info-gradient">1 day</div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if contribution_counts %}
+                <div class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <h4>Contributions by Word</h4>
+                    </div>
+                    <div>
+                        {% for word_count in contribution_counts %}
+                        <div class="word-item">
+                            "{{ word_count.word }}"
+                            <span class="stat-value bg-success-gradient">{{ word_count.count }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- System Status -->
+                <div class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <h4>System Status</h4>
+                    </div>
+                    <div class="dashboard-card-body">
+                        <div class="stat-item">
+                            <div class="stat-label">Model Status</div>
+                            <div class="stat-value bg-success-gradient">Online</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">API Status</div>
+                            <div class="stat-value bg-success-gradient">Online</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Last Update</div>
+                            <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.6);">Today</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

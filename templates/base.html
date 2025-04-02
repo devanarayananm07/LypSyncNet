@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LipRead AI - Computer vision technology for lip reading using deep learning">
+    <meta name="theme-color" content="#070b19">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>{% block title %}LipRead AI{% endblock %}</title>
+    
+    <!-- Critical CSS -->
+    <style>
+        :root {
+            --primary: #00e980;
+            --primary-dark: #00c26e;
+            --accent: #00bfff;
+            --dark-bg: #070b19;
+            --dark-surface: #0d1435;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.85);
+            --border-light: rgba(255, 255, 255, 0.05);
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --gradient-primary: linear-gradient(45deg, var(--primary), var(--accent));
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        main {
+            flex: 1;
+        }
+        
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        a:hover {
+            color: var(--accent);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--dark-bg);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 233, 128, 0.3);
+            color: var(--dark-bg);
+        }
+        
+        .btn-outline {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(0, 233, 128, 0.1);
+            transform: translateY(-2px);
+            color: var(--primary);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        /* Standard navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(7, 11, 25, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        /* Auth pages navbar */
+        .auth-page .navbar {
+            padding: 0.6rem 0;
+            background: rgba(7, 11, 25, 0.6);
+            box-shadow: 0 1px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .auth-page .navbar-brand {
+            font-size: 1.35rem;
+        }
+        
+        .auth-page .navbar-links {
+            gap: 1.5rem;
+        }
+        
+        .auth-page .btn {
+            padding: 0.5rem 1.25rem;
+            font-size: 0.95rem;
+        }
+        
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+        
+        .navbar-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .navbar-link {
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .navbar-link:hover, .navbar-link.active {
+            color: var(--primary);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 30px;
+            height: 24px;
+            position: relative;
+            z-index: 1001;
+        }
+        
+        .mobile-menu-btn span {
+            display: block;
+            width: 30px;
+            height: 2px;
+            background: var(--text-primary);
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+        
+        /* Alerts */
+        .alert-container {
+            padding: 1rem 0;
+            margin-top: 70px;
+        }
+        
+        .alert {
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: var(--dark-surface);
+            border-left: 4px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .alert-success {
+            border-color: var(--primary);
+        }
+        
+        .alert-info {
+            border-color: var(--accent);
+        }
+        
+        .alert-warning {
+            border-color: #ffc107;
+        }
+        
+        .alert-danger {
+            border-color: #dc3545;
+        }
+        
+        .btn-close {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--dark-surface);
+            padding: 2rem 0 1rem;
+            border-top: 1px solid var(--border-light);
+            margin-top: 2rem;
+        }
+        
+        .footer-grid {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .footer h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .footer-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            max-width: 400px;
+        }
+        
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .footer-links li {
+            margin: 0;
+        }
+        
+        .footer-links a {
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .footer-links a i {
+            width: 16px;
+            color: var(--primary);
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        .footer-contact {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .footer-contact li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .footer-contact li i {
+            width: 16px;
+            color: var(--primary);
+        }
+        
+        .footer-divider {
+            height: 1px;
+            background: var(--border-light);
+            margin: 1rem 0;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .footer-grid {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .footer-section {
+                min-width: 100%;
+                text-align: center;
+            }
+            
+            .footer-description {
+                margin: 0 auto 1rem;
+            }
+            
+            .footer-links, .footer-contact {
+                align-items: center;
+            }
+        }
+        
+        .navbar-hidden {
+            transform: translateY(-100%) !important;
+        }
+    </style>
+    
+    <!-- Additional CSS -->
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    {% block full_content %}
+    <!-- Navbar -->
+    <nav class="navbar {% if request.endpoint in ['login', 'register'] %}auth-page{% endif %}">
+        <div class="container navbar-container">
+            <a href="{{ url_for('index') }}" class="navbar-brand">LipRead AI</a>
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="navbar-links">
+                <a href="{{ url_for('index') }}" class="navbar-link {% if request.endpoint == 'index' %}active{% endif %}">Home</a>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}" class="navbar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
+                    <a href="{{ url_for('demo') }}" class="navbar-link {% if request.endpoint == 'demo' %}active{% endif %}">Demo</a>
+                    {% if current_user.is_admin %}
+                    <a href="{{ url_for('admin') }}" class="navbar-link {% if 'admin' in request.endpoint %}active{% endif %}">Admin</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline">Logout</a>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="navbar-link {% if request.endpoint == 'login' %}active{% endif %}">Login</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-primary">Sign Up</a>
+                    {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+        <div class="container alert-container">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category if category != 'message' else 'info' }}">
+                    <div>{{ message }}</div>
+                    <button type="button" class="btn-close" aria-label="Close">&times;</button>
+                    </div>
+                {% endfor %}
+        </div>
+            {% endif %}
+        {% endwith %}
+
+    <!-- Content -->
+    <main class="{% block main_class %}mt-5 pt-4{% endblock %}">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h4>LipRead AI</h4>
+                    <p class="footer-description">Advancing speech recognition through computer vision and deep learning technologies.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('index') }}"><i class="fas fa-home"></i>Home</a></li>
+                        {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-chart-line"></i>Dashboard</a></li>
+                        <li><a href="{{ url_for('demo') }}"><i class="fas fa-play-circle"></i>Demo</a></li>
+                        {% else %}
+                        <li><a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i>Login</a></li>
+                        <li><a href="{{ url_for('register') }}"><i class="fas fa-user-plus"></i>Sign Up</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul class="footer-contact">
+                        <li><i class="fas fa-envelope"></i>contact@lipreadai.com</li>
+                        <li><i class="fas fa-map-marker-alt"></i>123 Tech Avenue, Innovation Park</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-divider"></div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 LipRead AI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <!-- Core JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navbarLinks = document.querySelector('.navbar-links');
+            
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    navbarLinks.classList.toggle('active');
+                });
+            }
+            
+            // Alert close buttons
+            document.querySelectorAll('.btn-close').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    this.parentElement.remove();
+                });
+            });
+            
+            // Add navbar scroll behavior
+            setTimeout(function() {
+                const navbar = document.querySelector('.navbar');
+                if (!navbar) return; // Exit if no navbar is present
+                
+                // Add the necessary styles dynamically if not in index.html
+                if (!document.body.classList.contains('index-page')) {
+                    navbar.style.transition = 'transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)';
+                    navbar.style.willChange = 'transform';
+                }
+                
+                let lastScrollY = window.scrollY;
+                let ticking = false;
+                
+                function updateNavbar() {
+                    const currentScrollY = window.scrollY;
+                    
+                    // Always show navbar at the top (first 50px)
+                    if (currentScrollY <= 50) {
+                        navbar.classList.remove('navbar-hidden');
+                    } else {
+                        // Determine scroll direction with a 5px threshold to prevent jitter
+                        if (currentScrollY > lastScrollY + 5) {
+                            // Scrolling down - hide navbar
+                            navbar.classList.add('navbar-hidden');
+                        } else if (currentScrollY < lastScrollY - 5) {
+                            // Scrolling up - show navbar
+                            navbar.classList.remove('navbar-hidden');
+                        }
+                    }
+                    
+                    lastScrollY = currentScrollY;
+                    ticking = false;
+                }
+                
+                // Debounced scroll handler for better performance
+                function onScroll() {
+                    if (!ticking) {
+                        requestAnimationFrame(updateNavbar);
+                        ticking = true;
+                    }
+                }
+                
+                // Add event listener with passive flag for performance
+                window.addEventListener('scroll', onScroll, { passive: true });
+                
+                // Force an initial check
+                updateNavbar();
+                
+                console.log('Base template navbar scroll behavior initialized');
+            }, 100); // Short delay to ensure DOM is ready
+        });
+    </script>
+    
+    <!-- Font Awesome (deferred loading) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Page-specific scripts -->
+    {% block scripts %}{% endblock %}
+    
+    <!-- Extra JavaScript -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

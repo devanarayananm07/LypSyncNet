@@ -1,0 +1,35 @@
+# Core dependencies
+Flask==2.2.3
+Werkzeug==2.2.3
+SQLAlchemy==1.4.47
+Flask-Login==0.6.2
+Flask-SQLAlchemy==3.0.3
+email-validator==2.0.0
+
+# ML/CV dependencies
+tensorflow==2.12.0
+numpy==1.23.5
+opencv-python==4.6.0.66
+dlib==19.24.1
+scikit-learn==1.2.2
+h5py==3.8.0
+matplotlib==3.7.1
+pillow==9.4.0
+
+# Video processing
+imageio==2.27.0
+imageio-ffmpeg==0.4.8
+moviepy==1.0.3
+
+# Audio processing
+pyaudio==0.2.13
+librosa==0.10.1
+soundfile==0.12.1
+scipy==1.10.1
+
+# Utils
+tqdm==4.65.0
+pandas==2.0.0
+pyyaml==6.0
+jinja2==3.1.2
+requests==2.28.2

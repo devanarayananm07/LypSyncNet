@@ -1,0 +1,548 @@
+{% extends 'base.html' %}
+
+{% block title %}Data Collection - Lip Reading AI{% endblock %}
+
+{% block content %}
+<div style="background: linear-gradient(125deg, #0a0c1b 0%, #1a1f35 100%); min-height: 100vh; position: relative; padding: 6.5rem 0 1.5rem 0;">
+    <!-- Gradient overlay -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 20%, rgba(0, 233, 128, 0.05) 0%, transparent 40%), radial-gradient(circle at 80% 80%, rgba(0, 191, 255, 0.05) 0%, transparent 40%); pointer-events: none; z-index: 0;"></div>
+    
+    <div class="container py-4">
+        <div style="max-width: 1000px; margin: 0 auto; position: relative; z-index: 1;">
+            <!-- Main card -->
+            <div style="background: rgba(15, 18, 34, 0.85); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); backdrop-filter: blur(12px); overflow: hidden; margin-bottom: 0.75rem;">
+                <!-- Card header -->
+                <div style="padding: 0.5rem 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, 0.03); background: rgba(0, 0, 0, 0.2);">
+                    <h4 style="margin: 0; font-size: 0.85rem; font-weight: 600; color: #fff; letter-spacing: 0.5px; text-transform: uppercase;">Data Collection</h4>
+                </div>
+                
+                <!-- Card body -->
+                <div style="padding: 1rem 1.25rem;">
+                    <!-- Two-column layout for main components -->
+                    <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 1.25rem;">
+                        <!-- Left column: Video and recording controls -->
+                        <div style="display: flex; flex-direction: column;">
+                            <!-- How to contribute section -->
+                            <div style="background: rgba(15, 18, 34, 0.6); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; color: rgba(255, 255, 255, 0.9); position: relative;">
+                                <div style="display: flex; align-items: center;">
+                                    <div style="margin-right: 1.25rem; color: rgba(255, 255, 255, 0.8); flex-shrink: 0;">
+                                        <i class="fas fa-info-circle fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h5 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: 600; color: #fff;">How to contribute data</h5>
+                                        <p style="margin-bottom: 0;">Help improve our lip reading model by contributing your own samples. Position your face in the camera view, ensure good lighting, and speak one of the words clearly.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Video container -->
+                            <div style="position: relative; width: 100%; padding-bottom: 75%; background: rgba(0, 0, 0, 0.2); border-radius: 12px; overflow: hidden; margin-bottom: 1rem;">
+                                <video id="webcam" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" autoplay playsinline></video>
+                                <div id="lip-region-overlay" style="position: absolute; border: 2px dashed rgba(0, 233, 128, 0.7); display: none;"></div>
+                            </div>
+                            
+                            <!-- Camera controls -->
+                            <div style="display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 1rem;">
+                                <button id="startButton" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; background: linear-gradient(90deg, #00e980, #00bfff); color: #fff; border: none; flex-grow: 1;">
+                                    <i class="fas fa-play" style="margin-right: 0.5rem;"></i> Start Camera
+                                </button>
+                                <button id="stopButton" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; background: linear-gradient(90deg, #ff4d4d, #ff1a1a); color: #fff; border: none; flex-grow: 1; opacity: 0.6;" disabled>
+                                    <i class="fas fa-stop" style="margin-right: 0.5rem;"></i> Stop Camera
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Right column: Recording and contributions -->
+                        <div style="display: flex; flex-direction: column;">
+                            <!-- Recording section -->
+                            <div style="background: rgba(10, 13, 25, 0.5); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); margin-bottom: 1rem; overflow: hidden;">
+                                <div style="padding: 0.5rem 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, 0.03); background: rgba(0, 0, 0, 0.2);">
+                                    <h4 style="margin: 0; font-size: 0.85rem; font-weight: 600; color: #fff; letter-spacing: 0.5px; text-transform: uppercase;">Recording</h4>
+                                </div>
+                                <div style="padding: 1rem 1.25rem;">
+                                    <div style="margin-bottom: 1rem;">
+                                        <label for="wordSelect" style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">Select Word</label>
+                                        <select class="form-select" id="wordSelect" style="background-color: rgba(15, 18, 34, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; color: #fff; padding: 0.5rem 0.75rem; width: 100%; appearance: none; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 fill=%22white%22 viewBox=%220 0 16 16%22%3E%3Cpath d=%22M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 12px 12px;">
+                                            <option value="" selected disabled>Choose a word...</option>
+                                            <option value="hello">hello</option>
+                                            <option value="bye">bye</option>
+                                            <option value="cat">cat</option>
+                                            <option value="dog">dog</option>
+                                            <option value="read">read</option>
+                                            <option value="my">my</option>
+                                            <option value="lips">lips</option>
+                                            <option value="here">here</option>
+                                            <option value="is">is</option>
+                                            <option value="a">a</option>
+                                            <option value="demo">demo</option>
+                                            <option value="can">can</option>
+                                            <option value="you">you</option>
+                                        </select>
+                                    </div>
+                                    <div style="display: grid; gap: 0.5rem;">
+                                        <button id="recordButton" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; background: linear-gradient(90deg, #00e980, #00c26e); color: #fff; border: none; opacity: 0.6;" disabled>
+                                            <i class="fas fa-microphone" style="margin-right: 0.5rem;"></i> Record
+                                        </button>
+                                        <div id="recordingStatus" style="text-align: center; margin-top: 0.5rem; display: none;">
+                                            <div style="display: inline-block; width: 12px; height: 12px; background-color: #ff1a1a; border-radius: 50%; animation: pulse 1s infinite;">
+                                                <span style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;">Recording...</span>
+                                            </div>
+                                            <span style="margin-left: 0.5rem; color: #ff4d4d; font-weight: 600;">Recording...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contributions section -->
+                            <div style="background: rgba(15, 18, 34, 0.85); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); margin-bottom: 1rem; overflow: hidden;">
+                                <div style="padding: 0.5rem 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, 0.03); background: rgba(0, 0, 0, 0.2); display: flex; justify-content: space-between; align-items: center;">
+                                    <h4 style="margin: 0; font-size: 0.85rem; font-weight: 600; color: #fff; letter-spacing: 0.5px; text-transform: uppercase;">Your Contributions</h4>
+                                    <span id="contributionCount" style="display: inline-flex; align-items: center; justify-content: center; min-width: 2.25rem; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px; background: linear-gradient(90deg, #00e980, #00c26e); color: #fff;">0</span>
+                                </div>
+                                <div id="contribution-list" style="max-height: 180px; overflow-y: auto;">
+                                    <div style="text-align: center; padding: 1.25rem; color: rgba(255, 255, 255, 0.4); font-size: 0.9rem;">No contributions yet</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Tips section -->
+                            <div style="background: rgba(0, 233, 128, 0.1); border-left: 4px solid #00e980; border-radius: 12px; padding: 1rem 1.25rem; color: rgba(255, 255, 255, 0.9); position: relative;">
+                                <div style="display: flex; align-items: center;">
+                                    <div style="margin-right: 1.25rem; color: rgba(255, 255, 255, 0.8); flex-shrink: 0;">
+                                        <i class="fas fa-lightbulb fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h5 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: 600; color: #fff;">Tips for good recordings</h5>
+                                        <ul style="padding-left: 1.5rem; color: rgba(255, 255, 255, 0.8); font-size: 0.85rem; margin-bottom: 0;">
+                                            <li style="margin-bottom: 0.5rem;">Ensure your face is well-lit and clearly visible</li>
+                                            <li style="margin-bottom: 0.5rem;">Position yourself directly in front of the camera</li>
+                                            <li style="margin-bottom: 0.5rem;">Speak clearly and at a normal pace</li>
+                                            <li style="margin-bottom: 0.5rem;">Try to minimize background noise</li>
+                                            <li>Record multiple samples of each word for better model training</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes spinner-border {
+    to { transform: rotate(360deg); }
+}
+
+#lip-region-overlay {
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* Add responsive styles for small screens */
+@media (max-width: 992px) {
+    div[style*="display: grid; grid-template-columns: 3fr 2fr"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const recordButton = document.getElementById('recordButton');
+        const wordSelect = document.getElementById('wordSelect');
+        const webcamElement = document.getElementById('webcam');
+        const recordingStatus = document.getElementById('recordingStatus');
+        const contributionList = document.getElementById('contribution-list');
+        const contributionCount = document.getElementById('contributionCount');
+        const lipRegionOverlay = document.getElementById('lip-region-overlay');
+        
+        let stream = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let isRecording = false;
+        let contributions = [];
+        
+        // Start webcam
+        startButton.addEventListener('click', async function() {
+            console.log('Start camera button clicked');
+            try {
+                console.log('Requesting camera access...');
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                console.log('Camera access granted');
+                webcamElement.srcObject = stream;
+                startButton.disabled = true;
+                stopButton.disabled = false;
+                recordButton.disabled = false;
+                
+                // Update button styles
+                startButton.style.opacity = '0.6';
+                stopButton.style.opacity = '1';
+                recordButton.style.opacity = '1';
+                
+                // Show lip region after a delay
+                setTimeout(() => {
+                    console.log('Setting up lip region overlay');
+                    
+                    // Check if the video has loaded
+                    if (webcamElement.readyState >= 2) {
+                        setupLipRegion();
+                    } else {
+                        // If not loaded yet, add an event listener
+                        webcamElement.addEventListener('loadeddata', setupLipRegion);
+                    }
+                    
+                    function setupLipRegion() {
+                        const videoWidth = webcamElement.videoWidth;
+                        const videoHeight = webcamElement.videoHeight;
+                        
+                        console.log('Video dimensions:', videoWidth, videoHeight);
+                        if (videoWidth && videoHeight) {
+                            const lipWidth = videoWidth * 0.3;
+                            const lipHeight = lipWidth * 0.7;
+                            const left = (videoWidth - lipWidth) / 2;
+                            const top = (videoHeight - lipHeight) / 2 + videoHeight * 0.1;
+                            
+                            lipRegionOverlay.style.left = `${left}px`;
+                            lipRegionOverlay.style.top = `${top}px`;
+                            lipRegionOverlay.style.width = `${lipWidth}px`;
+                            lipRegionOverlay.style.height = `${lipHeight}px`;
+                            lipRegionOverlay.style.display = 'block';
+                            console.log('Lip region displayed', lipRegionOverlay.style);
+                        } else {
+                            console.error('Video dimensions not available');
+                        }
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Error accessing webcam:', error);
+                showAlert('error', 'Could not access webcam. Please ensure you have granted permission.');
+            }
+        });
+        
+        // Stop webcam
+        stopButton.addEventListener('click', function() {
+            if (isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                recordingStatus.style.display = 'none';
+                recordButton.innerHTML = '<i class="fas fa-microphone" style="margin-right: 0.5rem;"></i> Record';
+                recordButton.style.background = 'linear-gradient(90deg, #00e980, #00c26e)';
+            }
+            
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                webcamElement.srcObject = null;
+                stream = null;
+            }
+            
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            recordButton.disabled = true;
+            
+            // Update button styles
+            startButton.style.opacity = '1';
+            stopButton.style.opacity = '0.6';
+            recordButton.style.opacity = '0.6';
+            
+            lipRegionOverlay.style.display = 'none';
+        });
+        
+        // Record button
+        recordButton.addEventListener('click', function() {
+            console.log('Record button clicked, isRecording:', isRecording);
+            if (!stream) {
+                console.error('No camera stream available');
+                return;
+            }
+            
+            if (!isRecording) {
+                // Check if word is selected
+                if (!wordSelect.value) {
+                    console.log('No word selected');
+                    showAlert('error', 'Please select a word before recording.');
+                    return;
+                }
+                
+                console.log('Starting recording for word:', wordSelect.value);
+                // Start recording
+                recordedChunks = [];
+                
+                // Try different MimeType options for better browser compatibility
+                let options;
+                if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')) {
+                    options = { mimeType: 'video/webm;codecs=vp9,opus' };
+                } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) {
+                    options = { mimeType: 'video/webm;codecs=vp8,opus' };
+                } else if (MediaRecorder.isTypeSupported('video/webm')) {
+                    options = { mimeType: 'video/webm' };
+                }
+                
+                try {
+                    console.log('Creating MediaRecorder with options:', options);
+                    mediaRecorder = new MediaRecorder(stream, options);
+                } catch (e) {
+                    console.error('MediaRecorder creation error:', e);
+                    try {
+                        console.log('Trying MediaRecorder without options');
+                        mediaRecorder = new MediaRecorder(stream);
+                    } catch (e) {
+                        console.error('MediaRecorder fallback error:', e);
+                        showAlert('error', 'Recording not supported in this browser.');
+                        return;
+                    }
+                }
+                
+                mediaRecorder.ondataavailable = function(event) {
+                    console.log('Data available event, size:', event.data.size);
+                    if (event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = function() {
+                    console.log('MediaRecorder stopped, chunks:', recordedChunks.length);
+                    if (recordedChunks.length === 0) {
+                        console.error('No data recorded');
+                        showAlert('error', 'No data was recorded. Please try again.');
+                        return;
+                    }
+                    
+                    // Create a blob from the recorded chunks
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    console.log('Created blob, size:', blob.size);
+                    
+                    // Upload to server
+                    uploadRecording(blob, wordSelect.value);
+                };
+                
+                // Start recording with 3 second timeout
+                mediaRecorder.start();
+                console.log('MediaRecorder started');
+                isRecording = true;
+                recordingStatus.style.display = 'block';
+                recordButton.innerHTML = '<i class="fas fa-stop-circle" style="margin-right: 0.5rem;"></i> Stop Recording';
+                recordButton.style.background = 'linear-gradient(90deg, #ff4d4d, #ff1a1a)';
+                
+                // Automatically stop recording after 3 seconds
+                setTimeout(() => {
+                    if (isRecording && mediaRecorder && mediaRecorder.state !== 'inactive') {
+                        console.log('Auto-stopping recording after 3 seconds');
+                        mediaRecorder.stop();
+                        isRecording = false;
+                        recordingStatus.style.display = 'none';
+                        recordButton.innerHTML = '<i class="fas fa-microphone" style="margin-right: 0.5rem;"></i> Record';
+                        recordButton.style.background = 'linear-gradient(90deg, #00e980, #00c26e)';
+                    }
+                }, 3000);
+                
+            } else {
+                // Stop recording
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    console.log('Stopping recording manually');
+                    mediaRecorder.stop();
+                }
+                isRecording = false;
+                recordingStatus.style.display = 'none';
+                recordButton.innerHTML = '<i class="fas fa-microphone" style="margin-right: 0.5rem;"></i> Record';
+                recordButton.style.background = 'linear-gradient(90deg, #00e980, #00c26e)';
+            }
+        });
+        
+        // Upload recording to server
+        function uploadRecording(blob, word) {
+            console.log('Uploading recording for word:', word, 'blob size:', blob.size);
+            // Create a FormData object to send the video
+            const formData = new FormData();
+            formData.append('video', blob, `${word}_recording.webm`);
+            formData.append('word', word);
+            
+            // Show loading state
+            const loadingId = showAlert('loading', `Uploading your "${word}" sample...`);
+            
+            // Send the data to the server
+            fetch('/api/collect', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('Server response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Server response data:', data);
+                // Remove loading alert
+                removeAlert(loadingId);
+                
+                if (data.success) {
+                    // Create a timestamp
+                    const timestamp = new Date().toLocaleTimeString();
+                    
+                    // Add to contributions
+                    contributions.push({
+                        word: word,
+                        timestamp: timestamp,
+                        size: formatBytes(blob.size)
+                    });
+                    
+                    // Update contribution count
+                    contributionCount.textContent = contributions.length;
+                    
+                    // Update contribution list
+                    updateContributionList();
+                    
+                    // Show success message
+                    showAlert('success', `Your "${word}" sample has been uploaded successfully.`, true);
+                } else {
+                    // Show error message
+                    showAlert('error', data.error || 'Failed to upload your sample.', true);
+                }
+            })
+            .catch(error => {
+                // Remove loading alert
+                removeAlert(loadingId);
+                
+                // Show error message
+                console.error('Error uploading video:', error);
+                showAlert('error', 'Failed to upload your sample. Please try again.', true);
+            });
+        }
+        
+        // Helper function to show alerts
+        function showAlert(type, message, autoDismiss = false) {
+            console.log('Showing alert:', type, message);
+            const alertId = 'alert-' + Date.now();
+            
+            let bgColor, borderColor, iconHtml;
+            
+            if (type === 'success') {
+                bgColor = 'rgba(0, 233, 128, 0.1)';
+                borderColor = '#00e980';
+                iconHtml = '<i class="fas fa-check-circle"></i>';
+            } else if (type === 'error') {
+                bgColor = 'rgba(255, 76, 76, 0.1)';
+                borderColor = '#ff4c4c';
+                iconHtml = '<i class="fas fa-exclamation-circle"></i>';
+            } else { // loading
+                bgColor = 'rgba(0, 191, 255, 0.1)';
+                borderColor = '#00bfff';
+                iconHtml = '<div style="display: inline-block; width: 1rem; height: 1rem; border: 0.2em solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spinner-border .75s linear infinite;"><span style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;">Loading...</span></div>';
+            }
+            
+            const dismissButton = type !== 'loading' ? 
+                '<button type="button" style="position: absolute; top: 0.75rem; right: 0.75rem; background: transparent; border: none; color: rgba(255, 255, 255, 0.5); cursor: pointer;" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>' : '';
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.id = alertId;
+            alertDiv.style.background = bgColor;
+            alertDiv.style.borderLeft = `4px solid ${borderColor}`;
+            alertDiv.style.borderRadius = '12px';
+            alertDiv.style.padding = '1rem 1.25rem';
+            alertDiv.style.marginBottom = '1.25rem';
+            alertDiv.style.color = 'rgba(255, 255, 255, 0.9)';
+            alertDiv.style.position = 'relative';
+            
+            if (type !== 'loading') {
+                alertDiv.style.paddingRight = '3rem';
+            }
+            
+            alertDiv.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <span style="margin-right: 0.75rem;">${iconHtml}</span>
+                    <span>${message}</span>
+                </div>
+                ${dismissButton}
+            `;
+            
+            // Insert at the top of the dashboard card body
+            const dashboardCardBody = document.querySelector('[style*="padding: 1rem 1.25rem"]');
+            if (dashboardCardBody) {
+                console.log('Found dashboard card body to insert alert');
+                dashboardCardBody.insertBefore(alertDiv, dashboardCardBody.firstChild);
+            } else {
+                console.error('Could not find dashboard card body for alert');
+                // Fallback - add to body
+                document.body.appendChild(alertDiv);
+            }
+            
+            if (autoDismiss) {
+                setTimeout(() => {
+                    if (document.getElementById(alertId)) {
+                        alertDiv.style.opacity = '0';
+                        alertDiv.style.transition = 'opacity 0.3s ease';
+                        setTimeout(() => {
+                            if (document.getElementById(alertId)) {
+                                alertDiv.remove();
+                            }
+                        }, 300);
+                    }
+                }, 3000);
+            }
+            
+            return alertId;
+        }
+        
+        // Helper function to remove alerts by ID
+        function removeAlert(id) {
+            const alert = document.getElementById(id);
+            if (alert) {
+                alert.remove();
+            }
+        }
+        
+        // Update contribution list
+        function updateContributionList() {
+            if (contributions.length === 0) {
+                contributionList.innerHTML = '<div style="text-align: center; padding: 1.25rem; color: rgba(255, 255, 255, 0.4); font-size: 0.9rem;">No contributions yet</div>';
+                return;
+            }
+            
+            contributionList.innerHTML = '';
+            contributions.forEach((item) => {
+                const listItem = document.createElement('div');
+                listItem.style.padding = '0.75rem 1.25rem';
+                listItem.style.borderBottom = '1px solid rgba(255, 255, 255, 0.03)';
+                listItem.style.color = '#fff';
+                listItem.style.transition = 'background-color 0.2s ease';
+                
+                listItem.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: #fff; font-weight: 600;">${item.word}</strong>
+                            <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 2.25rem; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px; background: linear-gradient(90deg, #00e980, #00c26e); color: #fff; margin-left: 0.5rem;">${item.size}</span>
+                        </div>
+                        <small style="color: rgba(255, 255, 255, 0.4); font-size: 0.8rem;">${item.timestamp}</small>
+                    </div>
+                `;
+                
+                contributionList.appendChild(listItem);
+            });
+        }
+        
+        // Format bytes to human-readable format
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+    });
+</script>
+{% endblock %}

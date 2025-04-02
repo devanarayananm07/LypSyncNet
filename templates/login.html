@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Lip Reading AI{% endblock %}
+
+{% block styles %}
+<style>
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(7, 11, 25, 0.97) 0%, rgba(13, 20, 53, 0.95) 100%);
+        position: relative;
+        overflow: hidden;
+        padding: 1rem;
+    }
+
+    .auth-blob {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 0;
+        opacity: 0.1;
+        animation: float 8s ease-in-out infinite;
+    }
+
+    .blob-1 {
+        top: -300px;
+        right: -200px;
+        background: radial-gradient(circle at center, #00e980, transparent 70%);
+    }
+
+    .blob-2 {
+        bottom: -300px;
+        left: -200px;
+        background: radial-gradient(circle at center, #00bfff, transparent 70%);
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 340px;
+        background: rgba(13, 20, 53, 0.7);
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        position: relative;
+        z-index: 1;
+        padding: 1.75rem;
+    }
+
+    .auth-logo {
+        text-align: center;
+        margin-bottom: 1.25rem;
+    }
+
+    .auth-logo img {
+        height: 35px;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(90deg, #00e980, #00bfff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .auth-subtitle {
+        color: rgba(255, 255, 255, 0.6);
+        text-align: center;
+        margin-bottom: 1.25rem;
+        font-size: 0.85rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.35rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.65rem 0.9rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: white !important;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #00e980;
+        box-shadow: 0 0 0 3px rgba(0, 233, 128, 0.1);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .auth-btn {
+        width: 100%;
+        padding: 0.875rem;
+        background: linear-gradient(90deg, #00e980, #00bfff);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+
+    .auth-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 233, 128, 0.3);
+    }
+
+    .auth-btn:hover::before {
+        left: 100%;
+    }
+
+    .auth-links {
+        margin-top: 1.25rem;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    .auth-links a {
+        color: #00e980;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .auth-links a:hover {
+        color: #00bfff;
+    }
+
+    .auth-separator {
+        margin: 1.25rem 0;
+        text-align: center;
+        position: relative;
+    }
+
+    .auth-separator::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .auth-separator span {
+        background: rgba(13, 20, 53, 0.7);
+        padding: 0 1rem;
+        color: rgba(255, 255, 255, 0.6);
+        position: relative;
+    }
+
+    .social-login {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+
+    .social-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .social-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-blob blob-1"></div>
+    <div class="auth-blob blob-2"></div>
+    
+    <div class="auth-card">
+        <div class="auth-logo">
+            <h1 class="auth-title">Welcome Back</h1>
+            <p class="auth-subtitle">Sign in to continue to Lip Reading AI</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="auth-btn">Sign In</button>
+
+            <div class="auth-separator">
+                <span>or continue with</span>
+            </div>
+
+            <div class="social-login">
+                <a href="#" class="social-btn">
+                    <i class="fab fa-google"></i>
+                </a>
+                <a href="#" class="social-btn">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="#" class="social-btn">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+            </div>
+
+            <div class="auth-links">
+                Don't have an account? <a href="{{ url_for('register') }}">Sign Up</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

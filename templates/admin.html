@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Lip Reading AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Admin Dashboard</h2>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to User Dashboard
+        </a>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon bg-primary bg-gradient text-white rounded-circle me-3">
+                            <i class="fas fa-users fa-lg"></i>
+                        </div>
+                        <h4 class="mb-0">Users</h4>
+                    </div>
+                    <p class="text-muted">Manage user accounts and permissions.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary rounded-pill">{{ users|length }} Total</span>
+                        <a href="{{ url_for('admin_users') }}" class="btn btn-sm btn-primary">Manage</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon bg-success bg-gradient text-white rounded-circle me-3">
+                            <i class="fas fa-database fa-lg"></i>
+                        </div>
+                        <h4 class="mb-0">Datasets</h4>
+                    </div>
+                    <p class="text-muted">View and manage collected datasets.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-success rounded-pill">{{ datasets|length }} Total</span>
+                        <a href="{{ url_for('admin_datasets') }}" class="btn btn-sm btn-success">Manage</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon bg-info bg-gradient text-white rounded-circle me-3">
+                            <i class="fas fa-chart-line fa-lg"></i>
+                        </div>
+                        <h4 class="mb-0">Training</h4>
+                    </div>
+                    <p class="text-muted">Monitor model training and performance.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-info rounded-pill">{{ training_history|length }} Records</span>
+                        <a href="{{ url_for('admin_training') }}" class="btn btn-sm btn-info text-white">Manage</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon bg-warning bg-gradient text-white rounded-circle me-3">
+                            <i class="fas fa-microphone fa-lg"></i>
+                        </div>
+                        <h4 class="mb-0">Contributions</h4>
+                    </div>
+                    <p class="text-muted">Manage user data contributions.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-warning rounded-pill">{{ contributions|length }} Total</span>
+                        <a href="{{ url_for('admin_contributions') }}" class="btn btn-sm btn-warning text-white">Manage</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">System Overview</h5>
+                    <button class="btn btn-sm btn-outline-primary">Refresh</button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-3">User Statistics</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Total Users</span>
+                                    <span>{{ users|length }}</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;" aria-valuenow="{{ users|length }}" aria-valuemin="0" aria-valuemax="{{ users|length }}"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Admin Users</span>
+                                    <span>{{ users|selectattr('is_admin', 'equalto', true)|list|length }}</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ (users|selectattr('is_admin', 'equalto', true)|list|length / users|length * 100) if users|length > 0 else 0 }}%;" aria-valuenow="{{ users|selectattr('is_admin', 'equalto', true)|list|length }}" aria-valuemin="0" aria-valuemax="{{ users|length }}"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-3">Dataset Statistics</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Total Datasets</span>
+                                    <span>{{ datasets|length }}</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="{{ datasets|length }}" aria-valuemin="0" aria-valuemax="{{ datasets|length }}"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Training Records</span>
+                                    <span>{{ training_history|length }}</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 100%;" aria-valuenow="{{ training_history|length }}" aria-valuemin="0" aria-valuemax="{{ training_history|length }}"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Data Contributions</span>
+                                    <span>{{ contributions|length }}</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 100%;" aria-valuenow="{{ contributions|length }}" aria-valuemin="0" aria-valuemax="{{ contributions|length }}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .feature-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+    }
+</style>
+{% endblock %}

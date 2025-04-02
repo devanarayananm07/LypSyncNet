@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin - Contributions - Lip Reading AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin') }}">Admin</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Contributions</li>
+                </ol>
+            </nav>
+            <h2 class="mb-4">Data Contributions</h2>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>Total Contributions</div>
+                        <div class="badge bg-primary rounded-pill">{{ total_contributions }}</div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>Unique Words</div>
+                        <div class="badge bg-success rounded-pill">{{ word_stats|length }}</div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>Contributing Users</div>
+                        <div class="badge bg-info rounded-pill">{{ user_stats|length }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">Words</h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for word in word_stats %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            "{{ word.word }}"
+                            <span class="badge bg-success rounded-pill">{{ word.count }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">Top Contributors</h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for user in user_stats %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ user.username }}
+                            <span class="badge bg-primary rounded-pill">{{ user.count }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">All Contributions</h5>
+                    <div>
+                        <input type="text" id="contributionSearchInput" class="form-control form-control-sm" placeholder="Search...">
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Word</th>
+                                    <th>User</th>
+                                    <th>Filename</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for contribution, username in contributions %}
+                                <tr>
+                                    <td>{{ contribution.id }}</td>
+                                    <td><span class="badge bg-secondary">{{ contribution.word }}</span></td>
+                                    <td>{{ username }}</td>
+                                    <td class="text-truncate" style="max-width: 150px;">{{ contribution.filename }}</td>
+                                    <td>{{ contribution.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary" title="View">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

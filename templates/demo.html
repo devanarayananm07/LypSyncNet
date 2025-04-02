@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Demo - Lip Reading AI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-4">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Lip Reading Demo</h2>
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8 offset-md-2">
+                            <div class="text-center mb-3">
+                                <button id="startDemoBtn" class="btn btn-success">Start Demo</button>
+                                <button id="stopDemoBtn" class="btn btn-danger" disabled>Stop Demo</button>
+                                <button id="resetDemoBtn" class="btn btn-warning">Reset</button>
+                            </div>
+                            <div class="video-container">
+                                <img id="demoVideo" src="{{ url_for('demo_feed') }}" class="img-fluid">
+                            </div>
+                            <div id="predictionBox" class="mt-3 p-3 border rounded text-center">
+                                <h4>Predicted Word: <span id="predictedWord">None</span></h4>
+                                <p>Confidence: <span id="confidence">0.00</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-8 offset-md-2">
+                            <p><strong>Instructions:</strong></p>
+                            <ol>
+                                <li>Click 'Start Demo' to begin face detection and lip reading</li>
+                                <li>Face the camera and speak one of the following words clearly</li>
+                                <li>Wait for the prediction to appear below the video</li>
+                                <li>Click 'Reset' to clear previous predictions</li>
+                            </ol>
+                            <p><strong>Available Words:</strong> a, bye, can, cat, demo, dog, hello, here, is, lips, my, read, you</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startDemoBtn = document.getElementById('startDemoBtn');
+        const stopDemoBtn = document.getElementById('stopDemoBtn');
+        const resetDemoBtn = document.getElementById('resetDemoBtn');
+        const predictedWord = document.getElementById('predictedWord');
+        const confidence = document.getElementById('confidence');
+        
+        startDemoBtn.addEventListener('click', function() {
+            fetch('/run_demo', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    startDemoBtn.disabled = true;
+                    stopDemoBtn.disabled = false;
+                    console.log('Demo started successfully');
+                } else {
+                    console.error('Error starting demo:', data.error);
+                    alert('Error starting demo: ' + data.error);
+                }
+            });
+        });
+        
+        stopDemoBtn.addEventListener('click', function() {
+            fetch('/stop_demo', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    startDemoBtn.disabled = false;
+                    stopDemoBtn.disabled = true;
+                    console.log('Demo stopped successfully');
+                } else {
+                    console.error('Error stopping demo:', data.error);
+                    alert('Error stopping demo: ' + data.error);
+                }
+            });
+        });
+        
+        resetDemoBtn.addEventListener('click', function() {
+            fetch('/reset_demo', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    predictedWord.textContent = 'None';
+                    confidence.textContent = '0.00';
+                    console.log('Demo reset successfully');
+                } else {
+                    console.error('Error resetting demo:', data.error);
+                    alert('Error resetting demo: ' + data.error);
+                }
+            });
+        });
+        
+        // Periodically check for new predictions
+        setInterval(function() {
+            fetch('/get_prediction')
+            .then(response => response.json())
+            .then(data => {
+                if (data.word && data.is_new) {
+                    predictedWord.textContent = data.word;
+                    confidence.textContent = data.confidence.toFixed(2);
+                    
+                    // Highlight the prediction box to draw attention
+                    const predictionBox = document.getElementById('predictionBox');
+                    predictionBox.classList.add('bg-success', 'text-white');
+                    setTimeout(function() {
+                        predictionBox.classList.remove('bg-success', 'text-white');
+                    }, 1000);
+                }
+            });
+        }, 500);
+    });
+</script>
+
+<style>
+    .video-container {
+        position: relative;
+        width: 100%;
+        border: 1px solid #ccc;
+        overflow: hidden;
+    }
+    
+    #demoVideo {
+        width: 100%;
+        max-height: 480px;
+        object-fit: cover;
+    }
+    
+    #predictionBox {
+        background-color: #f8f9fa;
+        transition: background-color 0.3s ease;
+    }
+    
+    .btn-success-gradient {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+    }
+    
+    .btn-danger-gradient {
+        background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+        color: white;
+        border: none;
+    }
+    
+    .btn-info-gradient {
+        background: linear-gradient(135deg, #17a2b8 0%, #6610f2 100%);
+        color: white;
+        border: none;
+    }
+    
+    .btn-secondary-gradient {
+        background: linear-gradient(135deg, #6c757d 0%, #343a40 100%);
+        color: white;
+        border: none;
+    }
+</style>
+{% endblock %} 

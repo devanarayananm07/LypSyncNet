@@ -1,0 +1,1811 @@
+{% extends 'base.html' %}
+
+{% block title %}LipRead AI - Computer Vision Lip Reading{% endblock %}
+
+{% block styles %}
+<style>
+    /* Hero section styles */
+    .hero {
+        position: relative;
+        height: 100vh;
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        color: var(--text-primary);
+        padding: 0;
+    }
+    
+    .hero-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: -1;
+    }
+    
+    .dark-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(7, 11, 25, 0.8);
+        z-index: 1;
+    }
+    
+    .gradient-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(0,233,128,0.2) 0%, rgba(0,191,255,0.2) 100%);
+        z-index: 2;
+        mix-blend-mode: overlay;
+    }
+    
+    #particles-js {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 3;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+        text-align: center;
+    }
+    
+    .hero-title {
+        font-size: clamp(2.5rem, 8vw, 5rem);
+        font-weight: 700;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+    }
+    
+    .hero-title span {
+        display: block;
+    }
+    
+    .gradient-text {
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .hero-description {
+        font-size: clamp(1rem, 4vw, 1.25rem);
+        max-width: 600px;
+        margin: 0 auto 2.5rem;
+        color: var(--text-secondary);
+    }
+    
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .scroll-indicator {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .scroll-arrow {
+        width: 30px;
+        height: 50px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 25px;
+        position: relative;
+    }
+    
+    .scroll-arrow:after {
+        content: '';
+        width: 4px;
+        height: 8px;
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #fff;
+        border-radius: 2px;
+        animation: scrollDown 1.5s infinite alternate;
+    }
+    
+    @keyframes scrollDown {
+        0% {
+            transform: translate(-50%, 0);
+            opacity: 1;
+        }
+        100% {
+            transform: translate(-50%, 20px);
+            opacity: 0;
+        }
+    }
+    
+    /* Project Showcase Section */
+    .project-showcase {
+        padding: 12rem 0 10rem;
+        margin-top: 3rem;
+        background: linear-gradient(180deg, var(--dark-bg), rgba(13, 20, 53, 0.8));
+        position: relative;
+        overflow: hidden;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        z-index: 1;
+    }
+    
+    .project-blob {
+        position: absolute;
+        top: -300px;
+        right: -300px;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(circle at center, rgba(0,233,128,0.15) 0%, rgba(0,233,128,0) 70%);
+        filter: blur(80px);
+        z-index: 0;
+        animation: pulse 8s ease-in-out infinite alternate;
+    }
+    
+    .project-blob:nth-child(2) {
+        top: auto;
+        right: auto;
+        bottom: -300px;
+        left: -300px;
+        background: radial-gradient(circle at center, rgba(0,191,255,0.15) 0%, rgba(0,191,255,0) 70%);
+        animation-delay: -4s;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        100% {
+            transform: scale(1.3);
+        }
+    }
+    
+    .project-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        width: 100%;
+        margin-top: 2rem;
+    }
+    
+    .project-logo {
+        font-size: clamp(3rem, 10vw, 6rem);
+        font-weight: 800;
+        margin-bottom: 3rem;
+        margin-top: 2rem;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .project-logo-text {
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        position: relative;
+        z-index: 5;
+    }
+    
+    .logo-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, rgba(0,233,128,0.3) 0%, rgba(0,233,128,0) 70%);
+        filter: blur(40px);
+        z-index: 1;
+    }
+    
+    .logo-accent {
+        color: var(--accent);
+        font-weight: 400;
+    }
+    
+    .speech-animation {
+        position: relative;
+        margin: 3rem auto;
+        width: 300px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .sound-wave {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .sound-wave span {
+        display: block;
+        width: 6px;
+        height: 20px;
+        background: var(--gradient-primary);
+        border-radius: 3px;
+    }
+    
+    .sound-wave span:nth-child(1) {
+        animation: wave 1s ease-in-out infinite alternate;
+        animation-delay: -0.8s;
+    }
+    
+    .sound-wave span:nth-child(2) {
+        animation: wave 1.2s ease-in-out infinite alternate;
+        animation-delay: -0.6s;
+        height: 30px;
+    }
+    
+    .sound-wave span:nth-child(3) {
+        animation: wave 1.1s ease-in-out infinite alternate;
+        animation-delay: -0.4s;
+        height: 50px;
+    }
+    
+    .sound-wave span:nth-child(4) {
+        animation: wave 0.9s ease-in-out infinite alternate;
+        animation-delay: -0.2s;
+        height: 70px;
+    }
+    
+    .sound-wave span:nth-child(5) {
+        animation: wave 1s ease-in-out infinite alternate;
+        height: 80px;
+    }
+    
+    .sound-wave span:nth-child(6) {
+        animation: wave 0.9s ease-in-out infinite alternate;
+        animation-delay: -0.2s;
+        height: 70px;
+    }
+    
+    .sound-wave span:nth-child(7) {
+        animation: wave 1.1s ease-in-out infinite alternate;
+        animation-delay: -0.4s;
+        height: 50px;
+    }
+    
+    .sound-wave span:nth-child(8) {
+        animation: wave 1.2s ease-in-out infinite alternate;
+        animation-delay: -0.6s;
+        height: 30px;
+    }
+    
+    .sound-wave span:nth-child(9) {
+        animation: wave 1s ease-in-out infinite alternate;
+        animation-delay: -0.8s;
+        height: 20px;
+    }
+    
+    @keyframes wave {
+        0% {
+            transform: scaleY(0.3);
+        }
+        100% {
+            transform: scaleY(1);
+        }
+    }
+    
+    .project-tagline {
+        font-size: clamp(1.25rem, 5vw, 1.75rem);
+        max-width: 800px;
+        margin: 0 auto 2rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+    }
+    
+    .typing-container {
+        height: 1.75em;
+        margin-bottom: 3rem;
+    }
+    
+    .typing-text {
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        border-right: 3px solid var(--primary);
+        animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        font-size: clamp(1rem, 4vw, 1.2rem);
+        color: var(--text-secondary);
+    }
+    
+    @keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
+    }
+    
+    @keyframes blink-caret {
+        from, to { border-color: transparent }
+        50% { border-color: var(--primary) }
+    }
+    
+    /* Features section - Fixed and Simplified */
+    .features {
+        padding: 6rem 0;
+        background-color: var(--dark-bg);
+        position: relative;
+    }
+    
+    .features-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+    
+    .features-title {
+        font-size: clamp(2rem, 5vw, 3rem);
+        margin-bottom: 1rem;
+    }
+    
+    .features-subtitle {
+        color: var(--text-secondary);
+        max-width: 800px;
+        margin: 0 auto 3rem;
+        font-size: 1.1rem;
+    }
+    
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    
+    @media (min-width: 992px) {
+        .features-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    .feature-card {
+        background: rgba(13, 20, 53, 0.7);
+        border-radius: 12px;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-light);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--primary);
+        box-shadow: 0 15px 35px rgba(0, 233, 128, 0.2);
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        color: var(--dark-bg);
+        font-size: 2rem;
+        box-shadow: 0 10px 20px rgba(0, 233, 128, 0.3);
+    }
+    
+    .feature-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--primary);
+        font-weight: 600;
+    }
+    
+    .feature-description {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    /* Process section */
+    .process {
+        padding: 8rem 0;
+        background-color: rgba(13, 20, 53, 0.4);
+        position: relative;
+        margin-top: 3rem;
+    }
+    
+    .process::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        background: linear-gradient(to bottom, transparent, rgba(13, 20, 53, 0.4));
+    }
+    
+    .process-header {
+        text-align: center;
+        margin-bottom: 5rem;
+        position: relative;
+    }
+    
+    .process-header::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: var(--gradient-primary);
+        border-radius: 2px;
+    }
+    
+    .process-steps {
+        position: relative;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .process-steps:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 3px;
+        background: linear-gradient(to bottom, var(--primary), var(--accent));
+        transform: translateX(-50%);
+        box-shadow: 0 0 15px rgba(0, 233, 128, 0.5);
+    }
+    
+    .process-step {
+        margin-bottom: 7rem;
+        position: relative;
+        counter-increment: step-counter;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+    
+    .process-step:last-child {
+        margin-bottom: 0;
+    }
+    
+    .process-step:before {
+        content: counter(step-counter, decimal-leading-zero);
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 50px;
+        background: var(--gradient-primary);
+        color: var(--dark-bg);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+        z-index: 1;
+        box-shadow: 0 0 20px rgba(0, 233, 128, 0.6);
+    }
+    
+    .process-step:nth-child(odd) .process-content {
+        margin-right: calc(50% + 3rem);
+        text-align: right;
+    }
+    
+    .process-step:nth-child(even) .process-content {
+        margin-left: calc(50% + 3rem);
+    }
+    
+    .process-content {
+        background: rgba(13, 20, 53, 0.7);
+        border-radius: 12px;
+        padding: 2.5rem;
+        border: 1px solid var(--border-light);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .process-content:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 233, 128, 0.15);
+        border-color: rgba(0, 233, 128, 0.3);
+    }
+    
+    .process-title {
+        color: var(--primary);
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+    
+    .process-description {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .process-stats {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.3rem;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    @media (max-width: 768px) {
+        .process-steps:before {
+            left: 20px;
+        }
+        
+        .process-step:before {
+            left: 20px;
+            transform: none;
+        }
+        
+        .process-step:nth-child(odd) .process-content,
+        .process-step:nth-child(even) .process-content {
+            margin: 0 0 0 70px;
+            text-align: left;
+        }
+        
+        .process-stats {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .stat {
+            flex: 1 0 40%;
+        }
+    }
+    
+    /* CTA Section - Fixed visibility issues */
+    .cta {
+        padding: 8rem 0 6rem;
+        text-align: center;
+        background: linear-gradient(180deg, rgba(10, 15, 30, 0.95) 0%, rgba(7, 11, 25, 1) 100%);
+        position: relative;
+        overflow: visible;
+        z-index: 2;
+        margin-top: 3rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .cta::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        background: linear-gradient(to bottom, transparent, rgba(10, 15, 30, 0.95));
+        z-index: -1;
+    }
+
+    .cta-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+    }
+
+    .cta-glow {
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        top: -50%;
+        left: -50%;
+        background: radial-gradient(circle at center, rgba(0, 233, 128, 0.1) 0%, transparent 70%);
+        z-index: 0;
+        animation: pulse-glow 8s infinite alternate;
+    }
+
+    @keyframes pulse-glow {
+        0% {
+            opacity: 0.5;
+            transform: scale(1);
+        }
+        100% {
+            opacity: 0.8;
+            transform: scale(1.1);
+        }
+    }
+
+    .cta-content {
+        position: relative;
+        z-index: 2;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+
+    .cta-title {
+        font-size: clamp(2.5rem, 5vw, 3.5rem);
+        margin-bottom: 2.5rem;
+        position: relative;
+        display: inline-block;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .cta-title::after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: var(--gradient-primary);
+        border-radius: 2px;
+        box-shadow: 0 3px 10px rgba(0, 233, 128, 0.3);
+    }
+
+    .cta-description {
+        color: var(--text-secondary);
+        margin-bottom: 4rem;
+        font-size: 1.25rem;
+        line-height: 1.6;
+        max-width: 750px;
+        margin-left: auto;
+        margin-right: auto;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .cta-stats-container {
+        margin-bottom: 4rem;
+        position: relative;
+        z-index: 3;
+    }
+
+    .cta-stats {
+        display: flex;
+        justify-content: center;
+        gap: 4rem;
+        flex-wrap: wrap;
+        position: relative;
+    }
+
+    .cta-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        background: rgba(13, 20, 53, 0.5);
+        padding: 2rem;
+        border-radius: 15px;
+        width: 180px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .cta-stat:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0, 233, 128, 0.15);
+        border-color: rgba(0, 233, 128, 0.2);
+    }
+
+    .cta-stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.8rem;
+        text-shadow: none;
+    }
+
+    .cta-stat-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        margin: 2rem 0 4rem;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 3;
+    }
+
+    .cta .btn-primary {
+        padding: 1rem 2.5rem;
+        font-size: 1.1rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        z-index: 1;
+        box-shadow: 0 10px 20px rgba(0, 233, 128, 0.2);
+    }
+
+    .cta .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: all 0.6s ease;
+        z-index: -1;
+    }
+
+    .cta .btn-primary:hover::before {
+        left: 100%;
+    }
+
+    .cta .btn-outline {
+        padding: 1rem 2.5rem;
+        font-size: 1.1rem;
+        background: transparent;
+        color: var(--text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .cta .btn-outline:hover {
+        border-color: var(--primary);
+        background: rgba(0, 233, 128, 0.05);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .cta-testimonial {
+        margin: 5rem auto 0;
+        padding: 3rem;
+        background: rgba(13, 20, 53, 0.5);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        position: relative;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        z-index: 3;
+    }
+
+    .cta-testimonial::before {
+        content: '"';
+        position: absolute;
+        top: -40px;
+        left: 30px;
+        font-size: 8rem;
+        color: var(--primary);
+        opacity: 0.3;
+        font-family: serif;
+        line-height: 1;
+        text-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .cta-quote {
+        font-style: italic;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        font-size: 1.2rem;
+        line-height: 1.6;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .cta-author {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+    }
+
+    .cta-author-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--gradient-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--dark-bg);
+        font-weight: 700;
+        font-size: 1.4rem;
+        box-shadow: 0 5px 15px rgba(0, 233, 128, 0.3);
+    }
+
+    .cta-author-info {
+        text-align: left;
+    }
+
+    .cta-author-name {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+        font-size: 1.1rem;
+    }
+
+    .cta-author-title {
+        color: var(--primary);
+        font-size: 0.95rem;
+    }
+
+    @media (max-width: 768px) {
+        .cta-stats {
+            gap: 2rem;
+        }
+        
+        .cta-stat {
+            width: 150px;
+            padding: 1.5rem;
+        }
+        
+        .cta-stat-value {
+            font-size: 2rem;
+        }
+        
+        .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .cta-buttons .btn {
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .cta-testimonial {
+            padding: 2rem;
+        }
+    }
+
+    /* Footer - Simplified with less detail */
+    .footer {
+        padding: 1.5rem 0 1rem;
+        background: rgba(7, 11, 25, 1);
+        position: relative;
+        color: var(--text-secondary);
+        margin-top: 2rem;
+        z-index: 10;
+        border-top: 1px solid rgba(0, 233, 128, 0.1);
+    }
+
+    .footer-container {
+        position: relative;
+        z-index: 15;
+    }
+
+    .footer-grid {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        position: relative;
+        z-index: 20;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .footer-logo-section {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .footer-links-section {
+        display: flex;
+        justify-content: flex-end;
+        flex: 1;
+    }
+
+    .footer h4 {
+        color: var(--text-primary);
+        font-size: 1rem;
+        margin: 0 1rem 0 0;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .footer p {
+        display: none;
+    }
+
+    .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 2.5rem;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .footer-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .footer-links a:hover {
+        color: var(--primary);
+    }
+
+    .footer-links i {
+        color: var(--primary);
+        font-size: 1rem;
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .footer-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 0.8rem 0;
+    }
+
+    .footer-bottom {
+        text-align: center;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .footer-logo {
+        font-size: 1.4rem;
+        font-weight: 700;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+        margin: 0;
+    }
+
+    .footer-social {
+        display: flex;
+        gap: 1rem;
+        margin: 0 0 0 1.5rem;
+    }
+
+    .social-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .social-icon:hover {
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+
+    @media (max-width: 768px) {
+        .footer-grid {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1rem;
+        }
+        
+        .footer-logo-section {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links-section {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .footer h4 {
+            margin: 0 0 0.5rem 0;
+            display: none;
+        }
+        
+        .footer-links {
+            justify-content: center;
+            gap: 1.5rem 2.5rem;
+        }
+        
+        .footer-social {
+            margin: 0;
+        }
+    }
+
+    /* Custom navbar styles - Make thinner */
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background: rgba(7, 11, 25, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 0.4rem 0;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        will-change: transform;
+    }
+    
+    .navbar-hidden {
+        transform: translateY(-100%);
+    }
+    
+    .navbar-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+    }
+    
+    .navbar-brand {
+        font-size: 1.3rem;
+        font-weight: 700;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+    }
+    
+    .navbar-links {
+        display: flex;
+        gap: 2.5rem;
+        align-items: center;
+    }
+    
+    .navbar-link {
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: color 0.3s ease;
+    }
+    
+    .navbar-link:hover, .navbar-link.active {
+        color: var(--primary);
+    }
+    
+    .navbar .btn {
+        padding: 0.5rem 1.2rem;
+        font-size: 0.95rem;
+        transform-origin: center;
+    }
+    
+    .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        width: 24px;
+        height: 20px;
+        position: relative;
+        z-index: 1001;
+    }
+    
+    .mobile-menu-btn span {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: var(--text-primary);
+        margin: 4px 0;
+        transition: all 0.3s ease;
+    }
+    
+    /* Add a spotlight effect to highlight the feature grid */
+    .features-grid-container {
+        position: relative;
+        padding: 2rem 0;
+        z-index: 2;
+        background: radial-gradient(circle at center, rgba(0,233,128,0.03) 0%, transparent 70%);
+        animation: gridGlow 5s infinite alternate;
+    }
+    
+    @keyframes gridGlow {
+        0% {
+            background-position: center;
+        }
+        100% {
+            background-position: center 20%;
+        }
+    }
+    
+    /* Improve feature card visibility */
+    .feature-card {
+        transform: scale(1);
+        animation: cardPulse 1s ease-out;
+    }
+    
+    @keyframes cardPulse {
+        0% {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .features {
+            padding: 6rem 0;
+        }
+        
+        .navbar-links {
+            gap: 2rem;
+        }
+    }
+    
+    /* Override animations that might cause rendering issues */
+    .feature-card {
+        animation: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+    }
+    
+    .features-grid-container {
+        animation: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block full_content %}
+<!-- Add index-page class to body -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.classList.add('index-page');
+    });
+</script>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-background">
+        <div class="dark-overlay"></div>
+        <div class="gradient-overlay"></div>
+        <div id="particles-js"></div>
+    </div>
+    
+    <!-- Custom Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="{{ url_for('index') }}" class="navbar-brand">LipRead AI</a>
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="navbar-links">
+                <a href="{{ url_for('index') }}" class="navbar-link active">Home</a>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}" class="navbar-link">Dashboard</a>
+                    <a href="{{ url_for('demo') }}" class="navbar-link">Demo</a>
+                    {% if current_user.is_admin %}
+                    <a href="{{ url_for('admin') }}" class="navbar-link">Admin</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="navbar-link">Login</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-primary">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    
+    <div class="hero-content">
+        <h1 class="hero-title">
+            <span class="gradient-text">Computer Vision</span>
+            <span class="gradient-text">Lip Reading</span>
+        </h1>
+        <p class="hero-description">Experience the future of speech recognition through advanced AI technology that accurately interprets spoken words by analyzing lip movements.</p>
+        <div class="hero-buttons">
+            <a href="{{ url_for('demo') if current_user.is_authenticated else url_for('login') }}" class="btn btn-primary">
+                Try Demo <i class="fas fa-arrow-right"></i>
+            </a>
+            <a href="{{ url_for('register') if not current_user.is_authenticated else url_for('dashboard') }}" class="btn btn-outline">
+                        {% if current_user.is_authenticated %}Dashboard{% else %}Get Started{% endif %}
+                    </a>
+                </div>
+            </div>
+    
+    <div class="scroll-indicator">
+        <div class="scroll-arrow"></div>
+        <span>Scroll to explore</span>
+                </div>
+</section>
+
+<!-- Project Showcase Section - Added as a separate full-height section -->
+<section class="project-showcase">
+    <div class="project-blob"></div>
+    <div class="project-blob"></div>
+    
+    <div class="container">
+        <div class="project-content" data-aos="fade-up">
+            <div class="project-logo">
+                <div class="logo-glow"></div>
+                <h2 class="project-logo-text">LipRead<span class="logo-accent">.AI</span></h2>
+            </div>
+            
+            <div class="speech-animation" data-aos="fade-up" data-aos-delay="300">
+                <div class="sound-wave">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            
+            <p class="project-tagline" data-aos="fade-up" data-aos-delay="400">
+                Breaking communication barriers with cutting-edge visual speech recognition
+            </p>
+            
+            <div class="typing-container" data-aos="fade-up" data-aos-delay="500">
+                <div class="typing-text">Transcribing spoken words through advanced lip motion analysis</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features" id="features">
+    <div class="container">
+        <div class="features-header">
+            <h2 class="features-title gradient-text">Key Features</h2>
+            <p class="features-subtitle">Our cutting-edge technology combines deep learning with computer vision to deliver accurate lip reading results.</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
+                        </div>
+                <h3 class="feature-title">Deep Learning</h3>
+                <p class="feature-description">Powered by advanced 3D convolutional neural networks trained on diverse datasets for optimal accuracy.</p>
+                    </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h3 class="feature-title">Computer Vision</h3>
+                <p class="feature-description">Utilizes state-of-the-art facial recognition and landmark detection to precisely track lip movements.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                        </div>
+                <h3 class="feature-title">High Accuracy</h3>
+                <p class="feature-description">Achieves over 95% accuracy in recognizing words from our predefined vocabulary in optimal conditions.</p>
+                    </div>
+                </div>
+            </div>
+</section>
+
+<!-- Process Section -->
+<section class="process">
+    <div class="container">
+        <div class="process-header">
+            <h2 class="features-title gradient-text">How It Works</h2>
+            <p class="features-subtitle">Our advanced lip reading technology processes video through a sophisticated pipeline with 98% accuracy.</p>
+                        </div>
+        
+        <div class="process-steps">
+            <div class="process-step" data-aos="fade-right">
+                <div class="process-content">
+                    <h3 class="process-title">Face Detection</h3>
+                    <p class="process-description">Our system uses MTCNN (Multi-task Cascaded Convolutional Networks) to detect faces with 99.7% accuracy, even in challenging lighting conditions.</p>
+                    <div class="process-stats">
+                        <div class="stat">
+                            <span class="stat-value">99.7%</span>
+                            <span class="stat-label">Detection Rate</span>
+                    </div>
+                        <div class="stat">
+                            <span class="stat-value">30ms</span>
+                            <span class="stat-label">Processing Time</span>
+                </div>
+            </div>
+        </div>
+    </div>
+            
+            <div class="process-step" data-aos="fade-left">
+                <div class="process-content">
+                    <h3 class="process-title">Lip Region Extraction</h3>
+                    <p class="process-description">Using 68-point facial landmark detection, we precisely isolate the lip region with sub-pixel accuracy for detailed movement analysis.</p>
+                    <div class="process-stats">
+                        <div class="stat">
+                            <span class="stat-value">±0.5px</span>
+                            <span class="stat-label">Precision</span>
+        </div>
+                        <div class="stat">
+                            <span class="stat-value">15ms</span>
+                            <span class="stat-label">Extraction Time</span>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+            
+            <div class="process-step" data-aos="fade-right">
+                <div class="process-content">
+                    <h3 class="process-title">Neural Processing</h3>
+                    <p class="process-description">Our 3D CNN model with 8.5 million parameters analyzes temporal sequences of lip movements at 60 frames per second to recognize speech patterns.</p>
+                    <div class="process-stats">
+                        <div class="stat">
+                            <span class="stat-value">8.5M</span>
+                            <span class="stat-label">Parameters</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">95%</span>
+                            <span class="stat-label">Accuracy</span>
+                    </div>
+                        </div>
+                    </div>
+                        </div>
+            
+            <div class="process-step" data-aos="fade-left">
+                <div class="process-content">
+                    <h3 class="process-title">Word Recognition</h3>
+                    <p class="process-description">Our language model with a vocabulary of 5,000 words predicts spoken content with confidence scores, achieving 98% accuracy for common phrases.</p>
+                    <div class="process-stats">
+                        <div class="stat">
+                            <span class="stat-value">5,000+</span>
+                            <span class="stat-label">Vocabulary Size</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">98%</span>
+                            <span class="stat-label">Recognition Rate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta">
+    <div class="cta-background">
+        <div class="cta-glow"></div>
+    </div>
+    <div class="container">
+        <div class="cta-content">
+            <h2 class="cta-title gradient-text">Ready to Experience the Future?</h2>
+            <p class="cta-description">Join thousands of users already benefiting from our advanced lip reading technology. Whether for accessibility, noisy environments, or learning, LipRead.AI transforms how we understand speech.</p>
+            
+            <div class="cta-stats-container">
+                <div class="cta-stats">
+                    <div class="cta-stat">
+                        <div class="cta-stat-value">10,000+</div>
+                        <div class="cta-stat-label">Active Users</div>
+        </div>
+                    <div class="cta-stat">
+                        <div class="cta-stat-value">98%</div>
+                        <div class="cta-stat-label">Satisfaction Rate</div>
+                    </div>
+                    <div class="cta-stat">
+                        <div class="cta-stat-value">24/7</div>
+                        <div class="cta-stat-label">Support</div>
+                </div>
+            </div>
+                    </div>
+            
+            <div class="cta-buttons">
+                <a href="{{ url_for('register') if not current_user.is_authenticated else url_for('dashboard') }}" class="btn btn-primary">
+                    {% if current_user.is_authenticated %}Go to Dashboard{% else %}Get Started Now{% endif %}
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="{{ url_for('demo') if current_user.is_authenticated else url_for('login') }}" class="btn btn-outline">
+                    Try Demo
+                </a>
+                </div>
+            
+            <div class="cta-testimonial">
+                <p class="cta-quote">LipRead.AI has revolutionized how I communicate in noisy environments. The accuracy is impressive, and it's become an essential tool in my daily life.</p>
+                <div class="cta-author">
+                    <div class="cta-author-avatar">DR</div>
+                    <div class="cta-author-info">
+                        <div class="cta-author-name">Dr. Rachel Chen</div>
+                        <div class="cta-author-title">Speech Pathologist</div>
+            </div>
+                    </div>
+                </div>
+            </div>
+                    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container footer-container">
+        <div class="footer-grid">
+            <div class="footer-logo-section">
+                <div class="footer-logo">LipRead.AI</div>
+                <div class="footer-social">
+                    <a href="#" class="social-icon" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="footer-links-section">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#features"><i class="fas fa-star"></i> Features</a></li>
+                    {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="{{ url_for('demo') }}"><i class="fas fa-play-circle"></i> Demo</a></li>
+                    {% else %}
+                    <li><a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                    <li><a href="{{ url_for('register') }}"><i class="fas fa-user-plus"></i> Sign Up</a></li>
+                    {% endif %}
+                </ul>
+        </div>
+    </div>
+        <div class="footer-divider"></div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 LipRead.AI</p>
+            </div>
+        </div>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<!-- Particles.js -->
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js" defer></script>
+<!-- AOS (Animate On Scroll) -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize AOS with improved settings
+        AOS.init({
+            duration: 1000,
+            once: true, // Only animate once
+            offset: 100,
+            disable: true, // Disable AOS animations completely for now
+        });
+        
+        // Make sure feature cards are visible
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.style.opacity = '1';
+            card.style.transform = 'none';
+        });
+        
+        // Mobile menu toggle
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const navbarLinks = document.querySelector('.navbar-links');
+        
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                navbarLinks.classList.toggle('active');
+            });
+        }
+        
+        // Initialize particles.js
+        if (window.particlesJS) {
+            particlesJS('particles-js', {
+                particles: {
+                    number: {
+                        value: window.innerWidth < 768 ? 30 : 80,
+                        density: {
+                            enable: true,
+                            value_area: 800
+                        }
+                    },
+                    color: {
+                        value: '#00e980'
+                    },
+                    shape: {
+                        type: 'circle'
+                    },
+                    opacity: {
+                        value: 0.6,
+                        random: true
+                    },
+                    size: {
+                        value: 3,
+                        random: true
+                    },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: '#00bfff',
+                        opacity: 0.3,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 1.5,
+                        direction: 'none',
+                        random: true,
+                        straight: false,
+                        out_mode: 'out',
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: 'canvas',
+                    events: {
+                        onhover: {
+                            enable: true,
+                            mode: 'repulse'
+                        },
+                        onclick: {
+                            enable: true,
+                            mode: 'push'
+                        },
+                        resize: true
+                    },
+                    modes: {
+                        repulse: {
+                            distance: 100,
+                            duration: 0.4
+                        },
+                        push: {
+                            particles_nb: 4
+                        }
+                    }
+                },
+                retina_detect: true
+            });
+        }
+        
+        // IMPROVED NAVBAR SCROLL BEHAVIOR
+        // Wait a brief moment to ensure everything is loaded
+        setTimeout(function() {
+            const navbar = document.querySelector('.navbar');
+            let lastScrollY = window.scrollY;
+            let scrollingDown = false;
+            let ticking = false;
+            
+            // Make sure navbar is visible initially
+            navbar.classList.remove('navbar-hidden');
+            
+            function updateNavbar() {
+                const currentScrollY = window.scrollY;
+                
+                // Always show navbar at the top (first 50px)
+                if (currentScrollY <= 50) {
+                    navbar.classList.remove('navbar-hidden');
+                } else {
+                    // Determine scroll direction with a 5px threshold to prevent jitter
+                    if (currentScrollY > lastScrollY + 5) {
+                        // Scrolling down - hide navbar
+                        scrollingDown = true;
+                        navbar.classList.add('navbar-hidden');
+                    } else if (currentScrollY < lastScrollY - 5) {
+                        // Scrolling up - show navbar
+                        scrollingDown = false;
+                        navbar.classList.remove('navbar-hidden');
+                    }
+                    // else: not enough movement, maintain current state
+                }
+                
+                lastScrollY = currentScrollY;
+                ticking = false;
+            }
+            
+            // Debounced scroll handler for better performance
+            function onScroll() {
+                if (!ticking) {
+                    requestAnimationFrame(updateNavbar);
+                    ticking = true;
+                }
+            }
+            
+            // Add event listener with passive flag for performance
+            window.addEventListener('scroll', onScroll, { passive: true });
+            
+            // Force an initial check
+            updateNavbar();
+            
+            // Log to console for debugging
+            console.log('Navbar scroll behavior initialized');
+        }, 100); // Short delay to ensure DOM is ready
+        
+        // Smooth scrolling for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Add scroll behavior to enhance the visibility of sections
+        window.addEventListener('scroll', function() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            // Calculate current section and highlight navigation accordingly
+            // This helps ensure users can see which section they're currently viewing
+            const sections = document.querySelectorAll('section');
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                
+                if (scrollPosition >= sectionTop - windowHeight/2 && 
+                    scrollPosition < sectionTop + sectionHeight - windowHeight/2) {
+                    // We're viewing this section
+                    section.classList.add('active-section');
+                } else {
+                    section.classList.remove('active-section');
+                }
+            });
+        });
+        
+        // Make sure process steps are visible
+        document.querySelectorAll('.process-step').forEach(step => {
+            step.style.opacity = '1';
+            step.style.transform = 'none';
+        });
+        
+        // Add number counter animation for stats
+        const stats = document.querySelectorAll('.stat-value');
+        const observerOptions = {
+            threshold: 0.5,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const value = el.innerText;
+                    
+                    // Only animate if it's a number that can be parsed
+                    if (!isNaN(parseFloat(value))) {
+                        let startValue = 0;
+                        let endValue = parseFloat(value);
+                        let unit = value.replace(/[0-9.]/g, '');
+                        let duration = 1500;
+                        let startTime = null;
+                        
+                        function animate(timestamp) {
+                            if (!startTime) startTime = timestamp;
+                            const progress = Math.min((timestamp - startTime) / duration, 1);
+                            const currentValue = Math.floor(progress * endValue);
+                            el.innerText = currentValue + unit;
+                            
+                            if (progress < 1) {
+                                window.requestAnimationFrame(animate);
+                            } else {
+                                el.innerText = value; // Ensure final value is exact
+                            }
+                        }
+                        
+                        window.requestAnimationFrame(animate);
+                    }
+                    
+                    statsObserver.unobserve(el);
+                }
+            });
+        }, observerOptions);
+        
+        stats.forEach(stat => {
+            statsObserver.observe(stat);
+        });
+        
+        // Add number counter animation for CTA stats
+        const ctaStats = document.querySelectorAll('.cta-stat-value');
+        const ctaObserverOptions = {
+            threshold: 0.5,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const ctaStatsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const value = el.innerText;
+                    
+                    // Only animate if it's a number that can be parsed
+                    if (!isNaN(parseFloat(value))) {
+                        let startValue = 0;
+                        let endValue = parseFloat(value);
+                        let unit = value.replace(/[0-9.]/g, '');
+                        let duration = 2000;
+                        let startTime = null;
+                        
+                        function animate(timestamp) {
+                            if (!startTime) startTime = timestamp;
+                            const progress = Math.min((timestamp - startTime) / duration, 1);
+                            const currentValue = Math.floor(progress * endValue);
+                            el.innerText = currentValue + unit;
+                            
+                            if (progress < 1) {
+                                window.requestAnimationFrame(animate);
+                            } else {
+                                el.innerText = value; // Ensure final value is exact
+                            }
+                        }
+                        
+                        window.requestAnimationFrame(animate);
+                    }
+                    
+                    ctaStatsObserver.unobserve(el);
+                }
+            });
+        }, ctaObserverOptions);
+        
+        ctaStats.forEach(stat => {
+            ctaStatsObserver.observe(stat);
+        });
+    });
+</script>
+{% endblock %} 

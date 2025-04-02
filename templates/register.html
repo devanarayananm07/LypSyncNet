@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Lip Reading AI{% endblock %}
+
+{% block styles %}
+<style>
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(7, 11, 25, 0.97) 0%, rgba(13, 20, 53, 0.95) 100%);
+        position: relative;
+        overflow: hidden;
+        padding: 1rem;
+    }
+
+    .auth-blob {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 0;
+        opacity: 0.1;
+        animation: float 8s ease-in-out infinite;
+    }
+
+    .blob-1 {
+        top: -300px;
+        right: -200px;
+        background: radial-gradient(circle at center, #00e980, transparent 70%);
+    }
+
+    .blob-2 {
+        bottom: -300px;
+        left: -200px;
+        background: radial-gradient(circle at center, #00bfff, transparent 70%);
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 340px;
+        background: rgba(13, 20, 53, 0.7);
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        position: relative;
+        z-index: 1;
+        padding: 1.75rem;
+    }
+
+    .auth-logo {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .auth-logo img {
+        height: 50px;
+        margin-bottom: 1rem;
+    }
+
+    .auth-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 0.35rem;
+        background: linear-gradient(90deg, #00e980, #00bfff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .auth-subtitle {
+        color: rgba(255, 255, 255, 0.6);
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 0.8rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.6rem 0.8rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: white !important;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #00e980;
+        box-shadow: 0 0 0 3px rgba(0, 233, 128, 0.1);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .form-text {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 0.25rem;
+    }
+
+    .auth-btn {
+        width: 100%;
+        padding: 0.75rem;
+        background: linear-gradient(90deg, #00e980, #00bfff);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+
+    .terms-text {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
+        text-align: center;
+        margin-top: 0.75rem;
+    }
+
+    .terms-text a {
+        color: #00e980;
+        text-decoration: none;
+    }
+
+    .auth-separator {
+        margin: 1rem 0;
+        position: relative;
+        text-align: center;
+    }
+
+    .social-login {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .social-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.8);
+        transition: all 0.3s ease;
+    }
+
+    .social-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .auth-links {
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    @media (max-width: 480px) {
+        .auth-card {
+            max-width: 100%;
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 0.875rem;
+        }
+        
+        .auth-btn {
+            padding: 0.7rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-blob blob-1"></div>
+    <div class="auth-blob blob-2"></div>
+    
+    <div class="auth-card">
+        <div class="auth-logo">
+            <h1 class="auth-title">Create Account</h1>
+            <p class="auth-subtitle">Join Lip Reading AI today</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('register') }}">
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Choose a username" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Create a password" required>
+                <div class="form-text">Password must be at least 8 characters long</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="confirm_password">Confirm Password</label>
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+            </div>
+
+            <button type="submit" class="auth-btn">Create Account</button>
+
+            <p class="terms-text">
+                By creating an account, you agree to our<br>
+                <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+            </p>
+
+            <div class="auth-separator">
+                <span>or sign up with</span>
+            </div>
+
+            <div class="social-login">
+                <a href="#" class="social-btn">
+                    <i class="fab fa-google"></i>
+                </a>
+                <a href="#" class="social-btn">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="#" class="social-btn">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+            </div>
+
+            <div class="auth-links">
+                Already have an account? <a href="{{ url_for('login') }}">Sign In</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
